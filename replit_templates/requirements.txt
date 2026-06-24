@@ -1,0 +1,4 @@
+# requirements for Replit
+matrix-nio
+aiohttp
+python-dotenv
