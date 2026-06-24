@@ -1,16 +1,13 @@
+Under development — please do not enter.
+
 # Global-Cube.Ai
 
-راهنمای پروژه: Matrix + Hugging Face برای اجرای دو بات AI
+Guide: Matrix + Hugging Face for running two AI bots.
 
-این مخزن شامل یک صفحهٔ راهنما (index.html) است که مرحله‌به‌مرحله توضیح می‌دهد چگونه دو بات AI را با استفاده از Matrix (Element) و Hugging Face پیاده‌سازی کنی. فایل HTML طوری طراحی شده که از موبایل قابل استفاده باشد و برای افراد با ADHD نیز مناسب‌سازی شده است.
+This repository contains a user-friendly HTML guide (index.html), sample code, and a LICENSE. The project is currently under development; please do not use or deploy the contents until the repository is finalized.
 
-موارد داخل ریپو:
-- index.html — راهنمای کامل، چک‌لیست و کد نمونه
-- LICENSE — لایسنس MIT
+Files included (on gh-pages branch):
+- index.html — step-by-step guide (Persian) and sample code
+- LICENSE — MIT license
 
-راهنماهای بعدی که می‌توانم اضافه کنم:
-- mediator script برای مدیریت نوبت پاسخ‌دهی بات‌ها
-- فایل‌های نمونه برای Replit و Termux
-- راهنمای تصویری یا ویدیو کوتاه
-
-Pages (GitHub Pages): این repo در شاخهٔ `gh-pages` منتشر شده تا به‌صورت خودکار در GitHub Pages در دسترس قرار بگیرد.
+If you need access or want me to finish setup (Replit templates, mediator script, or GitHub Actions), ask and I will proceed.
