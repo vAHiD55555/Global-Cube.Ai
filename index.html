@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>راهنمای سریع: Matrix + Hugging Face برای دو بات AI (مناسب موبایل و ADHD)</title>
+  <style>
+    :root{
+      --bg:#0f1115; --card:#0d1116; --accent:#56b6c2; --text:#e6eef6; --muted:#9fb0bd;
+      --accent2:#c678dd;
+    }
+    body{
+      background:linear-gradient(180deg,#071018 0%, #07131a 100%);
+      color:var(--text); font-family: "Segoe UI", Roboto, "Noto Sans", Tahoma, sans-serif;
+      margin:0; padding:18px;
+      -webkit-font-smoothing:antialiased;
+    }
+    .container{max-width:900px;margin:0 auto;}
+    header{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+    header h1{font-size:1.2rem;margin:0}
+    p.lead{color:var(--muted);margin:8px 0 16px}
+    .card{background:rgba(255,255,255,0.03);padding:14px;border-radius:10px;margin-bottom:12px;box-shadow:0 6px 18px rgba(2,6,11,0.6)}
+    h2{margin:0 0 8px;font-size:1rem;color:var(--accent)}
+    ol,ul{padding-inline-start:18px;margin:8px 0 12px;color:var(--text)}
+    code, pre {font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Noto Mono", monospace; background:rgba(0,0,0,0.25); padding:6px;border-radius:6px; color:#d6f0ff;}
+    pre{overflow:auto;direction:ltr;text-align:left}
+    .muted{color:var(--muted);font-size:0.95rem}
+    .checklist label{display:block; margin:8px 0}
+    .step{display:flex;gap:10px;align-items:flex-start}
+    .step .num{min-width:28px;height:28px;border-radius:8px;background:var(--accent2);color:#081018;display:flex;align-items:center;justify-content:center;font-weight:700}
+    .small{font-size:0.9rem;color:var(--muted)}
+    .cta{display:inline-block;padding:8px 12px;border-radius:8px;background:var(--accent);color:#042426;text-decoration:none;font-weight:600}
+    details{margin:8px 0}
+    summary{cursor:pointer;color:var(--accent);font-weight:600}
+    .hint{background:linear-gradient(90deg, rgba(86,182,194,0.12), rgba(198,120,221,0.05));padding:8px;border-radius:8px;color:var(--text);margin-top:8px}
+    /* ADHD-friendly: big buttons, short lines, checkboxes */
+    input[type="checkbox"]{transform:scale(1.15);margin-left:8px}
+    .code-title{font-size:0.9rem;color:var(--muted);margin-bottom:6px}
+    footer{margin-top:18px;color:var(--muted);font-size:0.9rem}
+    /* LTR for inline English */
+    .ltr{direction:ltr;unicode-bidi:embed;display:inline-block}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>راهنمای گام‌به‌گام: Matrix + Hugging Face برای ۲ بات AI</h1>
+        <div class="muted">مناسب موبایل (بدون کامپیوتر) — ساختار یافته برای افراد با ADHD — خلاصه، چک‌لیست و اجرا</div>
+      </div>
+    </header>
+
+    <section class="card">
+      <h2>خلاصه در یک جمله</h2>
+      <p class="lead">تو یک روم Matrix (Element) می‌سازی، دو حساب بات جدا می‌سازی. هر بات یک سرویس (Replit یا Termux) دارد که از <span class="ltr">Hugging Face Inference API</span> برای تولید پاسخ استفاده می‌کند. من همهٔ مراحل، کدها و نکات ADHD‑friendly را در این فایل گذاشته‌ام.</p>
+      <div class="hint">
+        فوری: اگر می‌خواهی من این فایل را به یک مخزن GitHub اضافه کنم و GitHub Pages بسازم، نام کاربری و اسم ریپو را همین‌جا بفرست.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>چه چیزی دریافت می‌کنی (این فایل شامل)</h2>
+      <ul>
+        <li>چک‌لیست قدم‌به‌قدم برای اجرای سریع (Replit پیشنهاد شده برای موبایل)</li>
+        <li>دستورالعمل ساخت حساب Hugging Face و دریافت توکن</li>
+        <li>دستورالعمل ساخت حساب‌های Matrix و دعوت بات‌ها</li>
+        <li>کد پایتون برای بات (matrix_hf_bot.py) — آماده اجرا در Replit یا Termux</li>
+        <li>نکات طراحی UX برای محیط «مینیمال و خلاقیتی» و تنظیمات برای جلوگیری از حواس‌پرتی</li>
+        <li>گزینهٔ آفلاین (اطلاعات دربارهٔ gpt4all / llama.cpp) و محدودیت‌ها</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>چک‌لیست سریع (شکسته به گام‌های کوچک)</h2>
+      <div class="checklist">
+        <label><input type="checkbox"> ثبت‌نام در <span class="ltr">Hugging Face</span> و ساخت Access Token</label>
+        <label><input type="checkbox"> نصب اپ Element روی اندروید و ساخت حساب Matrix برای خودت</label>
+        <label><input type="checkbox"> ساخت ۲ حساب بات در Matrix (یا اطلاع به من برای ساختن آن‌ها)</label>
+        <label><input type="checkbox"> تصمیم‌گیری دربارهٔ استقرار بات‌ها: <strong>Replit</strong> (پیشنهاد برای موبایل) یا Termux (مستقل روی گوشی)</label>
+        <label><input type="checkbox"> پیست کردن توکن HF و مشخصات بات در محیط Replit (Secrets) و اجرای Repl</label>
+        <label><input type="checkbox"> دعوت بات‌ها به روم خصوصی و تنظیم rules (mention-only یا mediator)</label>
+      </div>
+      <div class="small">هر آیتم را به بخش مربوط در پایین برو و مراحل دقیق را دنبال کن. برای هر مرحله فقط 5–15 دقیقه وقت بگذار، بعد استراحت کن.</div>
+    </section>
+
+    <section class="card">
+      <h2>قدم‌های مفصل — بخش ۱: Hugging Face (۵–۱۰ دقیقه)</h2>
+      <ol>
+        <li>باز کن: <a class="ltr" href="https://huggingface.co" target="_blank">https://huggingface.co</a></li>
+        <li>ثبت‌نام کن (اگر نداری). بعد از ورود: Settings → Access Tokens → New token.</li>
+        <li>نام توکن بزن: <code>matrix-bot-token</code>. Scope: <strong>inference or read</strong>. ساخته و کپی کن.</li>
+        <li>یادداشت کن: API key را در جایی امن نگهدار (در Replit از بخش Secrets استفاده می‌شود).</li>
+      </ol>
+      <div class="muted">نکته: لایهٔ رایگان HF محدودیت دارد؛ برای تست خوب است. اگر پس از مدتی به مشکل برخوردی، به من بگو تا گزینهٔ جایگزین پیشنهاد دهم.</div>
+    </section>
+
+    <section class="card">
+      <h2>قدم‌های مفصل — بخش ۲: Matrix و Element (۵–۱۵ دقیقه)</h2>
+      <ol>
+        <li>نصب Element: از Play Store یا وب‌سایت رسمی Element نصب کن.</li>
+        <li>یک حساب بساز (مثلاً روی <span class="ltr">matrix.org</span>) — این حساب برای توست.</li>
+        <li>دو حساب بات جدا بساز: هر کدام یک ایمیل/نام کاربری مجزا نیاز دارد. نام پیشنهادی: <code>@aurora:matrix.org</code> و <code>@atlas:matrix.org</code>.</li>
+        <li>در Element یک روم خصوصی بساز و خودت + دو بات را دعوت کن.</li>
+        <li>در تنظیمات روم: اگر می‌خواهی خطاهای کم‌تر و آرامش بیشتر،‌ <strong>notifications</strong> برای ربات‌ها را خاموش کن یا از قاعده mention-only استفاده کن.</li>
+      </ol>
+      <div class="hint">اگر نخواستی خودت دو حساب بسازی، من می‌توانم راهنمایی کنم یا قدم‌های دقیق ساخت را برای موبایل مرحله‌به‌مرحله بنویسم.</div>
+    </section>
+
+    <section class="card">
+      <h2>قدم‌های مفصل — بخش ۳: استقرار بات‌ها (Replit — پیشنهادی برای موبایل)</h2>
+      <p class="small">چرا Replit؟ چون از مرورگر موبایل قابل استفاده است، نیازی به دانلود مدل روی گوشی نداری و سریع است.</p>
+
+      <h3 class="small">الف) آماده‌سازی در Replit</h3>
+      <ol>
+        <li>باز کن: <a class="ltr" href="https://replit.com" target="_blank">https://replit.com</a> و ثبت‌نام کن.</li>
+        <li>New Repl → Python → اسم بگذار.</li>
+        <li>در بخش Files، فایلی با نام <code>matrix_hf_bot.py</code> بساز و کد را پیست کن (کد کامل در پایین است).</li>
+        <li>در بخش Secrets (Environment → Secrets) متغیرهای زیر را قرار بده:
+          <ul>
+            <li><code>MATRIX_USER</code> = نام کاربری بات (مثلاً <span class="ltr">@aurora:matrix.org</span>)</li>
+            <li><code>MATRIX_PASS</code> = پسورد بات</li>
+            <li><code>HUGGINGFACE_API_TOKEN</code> = مقدار token از HF</li>
+            <li><code>HF_MODEL</code> = نام مدل در HF (پیش‌فرض: <span class="ltr">bigscience/bloomz-1b1</span>)</li>
+            <li><code>SYSTEM_PROMPT</code> = متن شخصیت بات (فارسی یا انگلیسی)</li>
+          </ul>
+        </li>
+        <li>Run را بزن. در کنسول پیام‌های لاگ را می‌بینی و بات شروع به sync می‌کند.</li>
+        <li>برای بات دوم: یک Repl جدا بساز و مقادیر MATRIX_USER/MATRIX_PASS و SYSTEM_PROMPT را تغییر بده (مثلاً شخصیت متفاوت).</li>
+      </ol>
+      <div class="muted">اگر Replit محدود یا خاموش شد، می‌توانیم از یک Repl کوچک استفاده کنیم یا روش Termux را امتحان کنیم.</div>
+    </section>
+
+    <section class="card">
+      <h2>قدم‌های مفصل — بخش ۴: استقرار بات‌ها (Termux — اگر می‌خواهی همه چیز روی گوشی باشد)</h2>
+      <ol>
+        <li>از <strong>F‑Droid</strong> یا وب Termux را نصب کن.</li>
+        <li>در Termux اجرا کن:
+          <pre><code class="ltr">pkg update && pkg upgrade
+pkg install python git clang make
+pip install --upgrade pip
+pip install matrix-nio aiohttp python-dotenv</code></pre>
+        </li>
+        <li>فایل <code>matrix_hf_bot.py</code> را در پوشه‌ای بساز و اجرا کن: <code class="ltr">python matrix_hf_bot.py</code></li>
+        <li>نکته: Termux برای اجرای مستمر نیاز به نگهدارنده (مثل tmux یا یک script autostart) دارد؛ مصرف ��اتری/داده را در نظر بگیر.</li>
+      </ol>
+      <div class="hint">Termux قدرت‌طلب‌تر است و اگر مدل‌ها را محلی بخواهی اجرا کنی نیاز به فضای چند گیگ و زمان برای نصب خواهد بود.</div>
+    </section>
+
+    <section class="card">
+      <h2>کد کامل: matrix_hf_bot.py</h2>
+      <div class="code-title">این فایل را دقیقاً در Replit یا Termux بساز و اجرا کن</div>
+      <pre><code class="ltr"># matrix_hf_bot.py
+# بات ساده Matrix که از Hugging Face Inference API استفاده می‌کند.
+# نیازها: python, matrix-nio, aiohttp
+# متغیرهای محیطی مورد نیاز:
+# MATRIX_USER, MATRIX_PASS, HUGGINGFACE_API_TOKEN, HF_MODEL (اختیاری), SYSTEM_PROMPT (اختیاری)
+
+import os
+import asyncio
+import aiohttp
+from nio import AsyncClient, MatrixRoom, RoomMessageText
+
+HOMESERVER = os.environ.get("MATRIX_HOMESERVER", "https://matrix.org")
+MATRIX_USER = os.environ["MATRIX_USER"]
+MATRIX_PASS = os.environ["MATRIX_PASS"]
+HUGGINGFACE_TOKEN = os.environ["HUGGINGFACE_API_TOKEN"]
+HF_MODEL = os.environ.get("HF_MODEL", "bigscience/bloomz-1b1")
+MAX_NEW_TOKENS = int(os.environ.get("MAX_NEW_TOKENS", "200"))
+
+async def query_hf(prompt: str) -> str:
+    url = f"https://api-inference.huggingface.co/models/{HF_MODEL}"
+    headers = {"Authorization": f"Bearer {HUGGINGFACE_TOKEN}", "Accept": "application/json"}
+    payload = {"inputs": prompt, "parameters": {"max_new_tokens": MAX_NEW_TOKENS, "do_sample": False}}
+    async with aiohttp.ClientSession() as session:
+        async with session.post(url, headers=headers, json=payload, timeout=120) as resp:
+            if resp.status == 200:
+                data = await resp.json()
+                if isinstance(data, dict) and "error" in data:
+                    return "خطا در مدل: " + data["error"]
+                if isinstance(data, list):
+                    text = data[0].get("generated_text") or data[0].get("summary_text") or str(data[0])
+                    return text
+                return str(data)
+            else:
+                text = await resp.text()
+                return f"HTTP {resp.status}: {text}"
+
+async def main():
+    client = AsyncClient(HOMESERVER, MATRIX_USER)
+    await client.login(MATRIX_PASS)
+
+    async def message_callback(room: MatrixRoom, event: RoomMessageText):
+        if event.sender == MATRIX_USER:
+            return
+        body = event.body.strip()
+        # قاعده: فقط در DM یا وقتی mention شده پاسخ بده
+        is_dm = room.is_direct if hasattr(room, 'is_direct') else (len(room.users) <= 2)
+        username = MATRIX_USER.split(":")[0].lstrip("@").lower()
+        mentioned = username in body.lower() or ("@" in body and username in body.lower())
+        if is_dm or mentioned:
+            system_prompt = os.environ.get("SYSTEM_PROMPT", "تو یک دستیار مختصر و خلاق هستی. پاسخ‌ها کوتاه و عملی باشند.")
+            prompt = f"{system_prompt}\n\nUser: {body}\nAssistant:"
+            await client.room_typing(room.room_id, timeout=1000)
+            resp_text = await query_hf(prompt)
+            await client.room_send(
+                room.room_id,
+                message_type="m.room.message",
+                content={"msgtype": "m.text", "body": resp_text}
+            )
+
+    client.add_event_callback(message_callback, RoomMessageText)
+    print("Bot started. Syncing...")
+    await client.sync_forever(timeout=30000)
+
+if __name__ == "__main__":
+    asyncio.get_event_loop().run_until_complete(main())</code></pre>
+      <div class="muted small">برای دو بات همین اسکریپت را دوباره با مقادیر محیطی متفاوت اجرا کن. برای mediator می‌توانم نسخهٔ جدا آماده کنم.</div>
+    </section>
+
+    <section class="card">
+      <h2>نکات طراحی UX برای فضای «مینیمال و خلاقیت‌محور» (ADHD‑friendly)</h2>
+      <ul>
+        <li>هر وظیفه را به قطعات 5–15 دقیقه‌ای تقسیم کن — بعد از هر بخش یک استراحت کوتاه 2–3 دقیقه‌ای بگیر.</li>
+        <li>از قواعد پاسخ‌دهی بات استفاده کن: mention-only یا از ری‌اکشن/دکمه برای فراخواندن بات استفاده کن.</li>
+        <li>حداکثر طول پاسخ: <code>MAX_NEW_TOKENS=150</code> — این کمک می‌کند پاسخ‌ها کوتاه و هدف‌گرا بمانند.</li>
+        <li>برای هر بات یک <strong>system prompt</strong> کوتاه و روشن بنویس (۳–۴ جمله).</li>
+        <li>برای جلوگیری از شلوغی، هر موضوع مهم را در یک topic یا روم جدا نگه دار.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>گزینهٔ آفلاین (اطلاعات مروری)</h2>
+      <div class="muted">اگر می‌خواهی کاملاً آفلاین و خصوصی باشی، می‌توانی مدل‌هایی مثل gpt4all یا LLaMA (quantized ggml) را دانلود و با llama.cpp اجرا کنی؛ اما:</div>
+      <ul>
+        <li>دانلود وزن‌ها چند گیگابایت است.</li>
+        <li>معمولاً سرعت روی گوشی کند است مگر گوشی خیلی قوی داشته باشی.</li>
+        <li>نصب و پیکربندی پیچیده‌تر است، اما حریم خصوصی کامل دارد.</li>
+      </ul>
+      <details>
+        <summary>لینک‌های مفید برای آفلاین (باز کن اگر کنجکاوی)</summary>
+        <ul>
+          <li><a class="ltr" href="https://github.com/ggerganov/llama.cpp" target="_blank">llama.cpp</a></li>
+          <li><a class="ltr" href="https://github.com/nomic-ai/gpt4all" target="_blank">gpt4all</a></li>
+        </ul>
+      </details>
+    </section>
+
+    <section class="card">
+      <h2>مسائل حقوقی و امنیتی</h2>
+      <ul>
+        <li>هرگز توکن HF یا پسورد حساب‌ها را در چت عمومی نگذار.</li>
+        <li>اگر اطلاعات حساس دارید، از مدل‌های آفلاین یا سرور خصوصی استفاده کنید.</li>
+        <li>محدودیت‌های licnese مدل‌های HF را قبل از استفاده بررسی کن (برخی مدل‌ها نیاز به پذیرش مجوز دارند).</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>فعالیت‌های بعدی — چه کاری از من بخواهی</h2>
+      <ol>
+        <li>می‌خواهی من این HTML را در یک مخزن GitHub بسازم و GitHub Pages روشن کنم؟ (بفرست: <code>owner/repo</code>)</li>
+        <li>می‌خواهی نسخهٔ mediator (کنترل‌کننده نوبت پاسخ بات‌ها) را هم اضافه کنم؟</li>
+        <li>دوست داری من برایت دو حساب بات Matrix بسازم یا آموزش تصویری کوتاه مرحله‌به‌مرحله ارسال کنم؟</li>
+      </ol>
+      <div class="muted">پاسخ بده کدوم گزینه‌ها رو می‌خوای تا من دقیقاً همان‌جا ادامه بدم.</div>
+    </section>
+
+    <footer>
+      ساخته شده توسط دستیار — اگر می‌خواهی فایل را ویرایش کنم (مثلاً افزودن mediator یا طراحی UI وب ساده) بگو؛ من می‌توانم کد صفحات، repo و GitHub Pages را هم آماده کنم.
+    </footer>
+  </div>
+</body>
+</html>
